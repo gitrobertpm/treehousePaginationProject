@@ -1,13 +1,13 @@
-/**
+/*******************************
  * My Treehouse Projects #9,
  *
  * FSJS #2, filter and pagination
  *
- */
+ *********************************/
 
 "use strict";
 
-/** SHOW TEN STUDENT ITEMS ON LOAD **/
+/** SHOW TEN STUDENT ITEMS ON LOAD **********************************/
 var page = document.getElementsByClassName("page");
 var studentItem = document.getElementsByClassName("student-item");
 
@@ -22,13 +22,14 @@ for (var i = 0; i < studentItem.length; i++) {
 		studentItem[i].style.display = "none";
 	}
 }
+/**********************************************************************/
+
 
 
 /** CALCUALTE NUMBER OF ITEMS, CREATE PAGINATION BUTTONS, APPEND TO PAGE AND ADD ACTIVE CLASS TO ACTIVE BUTTON **/
 // CREATE PAGINATION DIV AND SET CLASS
 var paginationDiv = document.createElement("div");
 paginationDiv.setAttribute("class", "pagination");
-var pagination = document.getElementsByClassName("pagination");
 
 // CREATE PAGINATION UNORDERED LIST
 var paginationUL = document.createElement("ul");
@@ -46,7 +47,8 @@ for (var li = 0; li < studentItem.length / 10; li++) {
 	
 	// APPEND ANCHORS TO LIST ITEMS AND LIST ITEMS TO UNORDERED LIST
 	paginationLI.appendChild(paaginationAnchor);
-	paginationDiv.appendChild(paginationLI);
+	paginationUL.appendChild(paginationLI);
+	paginationDiv.appendChild(paginationUL);
 }
 
 // APPEND PAGINATION DIV TO PAGE
@@ -57,9 +59,11 @@ var paginationLink = document.getElementsByClassName("paginationLink");
 
 // ADD ACTIVE CLASS TO FIRST PAGINATION LINK
 paginationLink[0].setAttribute("class", "paginationLink active");
+/**********************************************************************/
 
 
-/** HELPER FUNCTION FOR OPACITY ANIMATION **/
+
+/** HELPER FUNCTION FOR OPACITY ANIMATION *****************************/
 var opacAnimate = function(element) {
 	var animateItems = setInterval(revealItems, 10);
 	var opac = 0;
@@ -72,9 +76,11 @@ var opacAnimate = function(element) {
 		}
 	}
 };
+/**********************************************************************/
 
 
-/** HELPER FUNCTION FOR DISPLAYING SELECTED NUMBER OF STUDETNS **/
+
+/** HELPER FUNCTION FOR DISPLAYING SELECTED NUMBER OF STUDETNS ********/
 var showItems = function(indStart, indStop) {
 	
 	// LOOP THROUGH SOMETHING
@@ -93,7 +99,7 @@ var showItems = function(indStart, indStop) {
 		}
 	}
 };
-
+/**********************************************************************/
 
 
 
@@ -133,10 +139,11 @@ for (var a = 0; a < paginationLink.length; a++) {
 		}	
 	};
 }
+/**********************************************************************/
 
 	
 	
-/** ADD SEARCH BAR & SUBMIT BUTTON **/
+/** ADD SEARCH BAR & SUBMIT BUTTON ************************************/
 var pageHeader = document.getElementsByClassName("page-header");
 
 // CREATE SEARCH DIV AND ADD CLASS
@@ -147,6 +154,8 @@ searchDiv.setAttribute("class", "student-search");
 var searchInput = document.createElement("input");
 searchInput.setAttribute("placeholder", "Search for students...");
 searchInput.setAttribute("id", "cerchInput");
+searchInput.setAttribute("value", "");
+searchInput.setAttribute("name", "Search");
 
 // CREATE SUBMIT BUTTON AND LABEL WITH TEXT
 var searchButton = document.createElement("button");
@@ -157,9 +166,12 @@ searchDiv.appendChild(searchInput);
 searchDiv.appendChild(searchButton);
 pageHeader[0].appendChild(searchDiv);
 
+var cerchInput = document.getElementById("cerchInput");
+/**********************************************************************/
 
 
-/** ADD WARNING TO PAGE FOR NO SEARCH RESULTS FOUND **/
+
+/** ADD WARNING TO PAGE FOR NO SEARCH RESULTS FOUND *******************/
 // CREATE MESSAGE DIV
 var nfDiv = document.createElement("div");
 nfDiv.setAttribute("id", "divNotFound");
@@ -193,11 +205,11 @@ closeNotFound.onclick = function() {
 	divNotFound.style.display = "none";
 	divNotFound.style.opacity = "0";
 };
+/**********************************************************************/
 
 
 
-
-/** SERACH **/
+/** SERACH ************************************************************/
 var studentName = document.getElementsByTagName("h3");
 
 // CREATE EMPTY ARRAY TO HOLD SEARCH MATCHES AND THEIR CORRESPONDING MARKERS
@@ -236,7 +248,7 @@ function cerch(key) {
 		// IF MATCH IS FOUND
 		if (success !== null) {
 			searchToggle = true;
-			var successNumber = studentName[c].marker
+			var successNumber = studentName[c].marker;
 			
 			// PUSH SEARCH MATCHES INTO ARRAY
 			searchMatchList.push(success);
@@ -274,8 +286,11 @@ function cerch(key) {
 	}
 };
 
+cerchInput.addEventListener("focus", function() {
+	cerchInput.value = "";
+});
 
-// ADD BLUE EVENT LISTENER TO INPUT TO CLEAR SEARCH STORAGE ARRAYS
+// ADD BLUR EVENT LISTENER TO INPUT TO CLEAR SEARCH STORAGE ARRAYS
 cerchInput.addEventListener("blur", function() {
 	searchMatchList = [];
 	searchMatchMarker = [];
@@ -300,7 +315,4 @@ searchButton.addEventListener("click", function() {
 	searchMatchMarker = [];
 	searchToggle = false;
 });
-	
-
-
-//alert("test");
+/**********************************************************************/	
