@@ -65,6 +65,7 @@ paginationLink[0].setAttribute("class", "paginationLink active");
 
 /** HELPER FUNCTION FOR OPACITY ANIMATION *****************************/
 var opacAnimate = function(element) {
+	var revealItems;
 	var animateItems = setInterval(revealItems, 10);
 	var opac = 0;
 	function revealItems() {
