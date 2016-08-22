@@ -5,122 +5,102 @@
  *
  * Robert Manolis, Milwaukie OR, July 2016  :)
  *************************************************************/
-(function(window, document) {
-	"use strict";
+
+"use strict";
+
+/********************************************************
+ * PAGINATOR CONSTRUCTOR OBJECT
+ *
+ * PARAMS: CLASS NAME OF LIST ITEMS YOU WANT PAGINATED
+ * 		 CLASS NAME OF CONTAINER TO HOLD SEARCH
+ * 		 TAG NAME OF ELEMENT THAT HOLDS TEXT TO BE SEARCHED
+ *
+ * RETURNS: THIS
+ *********************************************************/
+var Paginator = function(listItemKlassName, searchBox, searchItems) {
+	var that = this;
 	
-	/********************************************************
-	 * PAGINATOR CONSTRUCTOR OBJECT
-	 *
-	 * PARAMS: CLASS NAME OF LIST ITEMS YOU WANT PAGINATED
-	 *
-	 * RETURNS: THIS
-	 *********************************************************/
-	var Paginator = function(listItemKlassName, searchBox) {
-		var that = this;
-		
-		/* GET HTML COLLECTION OF LIST ITEM CLASS NAME ******/
-		that.el_eye = document.getElementsByClassName(listItemKlassName);
-		
-		/* CONVERT HTML COLLECTION INTO ARRAY ***************/
-		that.tempArr = [].slice.call(that.el_eye);
-		
-		var makeIt = function() {
-			var elem = document.createElement(this.el);
+	/* GET TAG NAME OF ITEMS TO SEARCH THROUGH **********/
+	that.searchItems = document.getElementsByTagName(searchItems);
+	
+	/* GET CLASS NAME OF SEARCH CONTAINER ***************/
+	that.searchBox = document.getElementsByClassName(searchBox)[0];
+	
+	/* GET HTML COLLECTION OF LIST ITEM CLASS NAME ******/
+	that.el_eye = document.getElementsByClassName(listItemKlassName);
+	
+	/* CONVERT LIST ITEM HTML COLLECTION INTO ARRAY *****/
+	that.tempArr = [].slice.call(that.el_eye);
+	
+	/* CONFIGURE PAGE BUTTONS ***************************/
+	that.pageButtonsConfig = {
+		container: {
+			el: "ul",
+			klass: "pagination",
+			makeIt: function() {
+				var elem = document.createElement(this.el);
 				elem.setAttribute("class", this.klass);
 				return elem;
-		};
-		
-		/* CONFIGURE PAGE BUTTONS ***************************/
-		that.pageButtonsConfig = {
-			container: {
-				el: "ul",
-				klass: "pagination",
-				makeIt: function() {
-					var elem = document.createElement(this.el);
-					elem.setAttribute("class", this.klass);
-					return elem;
-				}
-			},
-			items: {
-				el: "li",
-				makeIt: function() {
-					var elem = document.createElement(this.el);
-					return elem;
-				}
-			},
-			links: {
-				el: "a",
-				klass: "paginationLink",
-				makeIt: function() {
-					var elem = document.createElement(this.el);
-					elem.setAttribute("class", this.klass);
-					return elem;
-				}
 			}
-		};
-		
-		/* CONFIGURE SEARCH ***************************/
-		that.searchConfig = {
-			container: {
-				
+		},
+		items: {
+			el: "li",
+			makeIt: function() {
+				var elem = document.createElement(this.el);
+				return elem;
 			}
-		};
-		return that;
+		},
+		links: {
+			el: "a",
+			klass: "paginationLink",
+			makeIt: function() {
+				var elem = document.createElement(this.el);
+				elem.setAttribute("class", this.klass);
+				return elem;
+			}
+		}
 	};
 	
-	
-	
-	// /** ADD SEARCH BAR & SUBMIT BUTTON ************************************/
-	// var pageHeader = document.getElementsByClassName("page-header");
-
-	// // CREATE SEARCH DIV AND ADD CLASS
-	// var searchDiv = document.createElement("div");
-	// searchDiv.setAttribute("class", "student-search");
-
-	// // CREATE SEARCH INPUT AND ADD PLACEHOLDER TEXT
-	// var searchInput = document.createElement("input");
-	// searchInput.setAttribute("placeholder", "Search for students...");
-	// searchInput.setAttribute("id", "cerchInput");
-	// searchInput.setAttribute("value", "");
-	// searchInput.setAttribute("name", "Search");
-
-	// // CREATE SUBMIT BUTTON AND LABEL WITH TEXT
-	// var searchButton = document.createElement("button");
-	// searchButton.innerHTML = "Search";
-
-	// // APPEND INPUT AND BUTTON TO DIV AND DIV TO PAGE
-	// searchDiv.appendChild(searchInput);
-	// searchDiv.appendChild(searchButton);
-	// pageHeader[0].appendChild(searchDiv);
-
-	// var cerchInput = document.getElementById("cerchInput");
-	// /**********************************************************************/
-	
-	
-	/***********************************************************
-	 * SET UP PAGE
-	 * 
-	 * HIDE LIST ITEMS, ADD MARKER TO EACH LIST ITEM, SHOW FIRST TEN LIST ITEMS BY DEFAULT
-	 ***********************************************************/
-	Paginator.prototype.pages = function() {
-		var that = this;
-		var keyCounter = 0;
-		[].map.call(this.el_eye, function(key) {
-			keyCounter += 1;
-			key.style.display = "none";
-			key.marker = keyCounter;
-		});
-		that.tempArr.filter(function(key) {	
-			if (that.tempArr.indexOf(key) < 10) {
-				key.style.display = "block";
+	/* CONFIGURE SEARCH ***************************/
+	that.searchConfig = {
+		container: {
+			el: "div",
+			klass: "student-search",
+			makeIt: function() {
+				var elem = document.createElement(this.el);
+				elem.setAttribute("class", this.klass);
+				return elem;
 			}
-		});
-	};
+		},
+		input: {
+			el: "input",
+			name: "Search",
+			id: "cerchInput",
+			val: "",
+			placeholder: "Search for students...",
+			makeIt: function() {
+				var elem = document.createElement(this.el);
+				elem.setAttribute("name", this.name);
+				elem.setAttribute("id", this.id);
+				elem.setAttribute("value", this.val);
+				elem.setAttribute("placeholder", this.placeholder);
+				return elem;
+			}
+		},
+		button: {
+			el: "button",
+			teckts: "Search",
+			id: "searchButton",
+			makeIt: function() {
+				var elem = document.createElement(this.el);
+				elem.innerHTML = "Search";
+				return elem;
+			}
+		}
+	};	
 	
-	
-	
-	/* PURE HELPER FUNCTION FOR ANIMATING OPACITY OF SELECTED ITEMS */
-	var opacAnimate = function(el) {
+	/* HELPER FUNCTION FOR ANIMATING OPACITY OF SELECTED ITEMS */
+	that.opacAnimate = function(el) {
 		var animateItems = setInterval(revealItems, 10);
 		var opac = 0;
 		function revealItems() {
@@ -135,94 +115,142 @@
 	/************************************************************/
 
 
-
-	/* PURE HELPER FUNCTION FOR DISPLAYING SELECTED NUMBER OF STUDENTS */
-	var showItems = function(indStart, indStop, el) {
+	/* HELPER FUNCTION FOR DISPLAYING SELECTED NUMBER OF STUDENTS */
+	that.showItems = function(indStart, indStop, el) {
 		for (var ind = indStart, end = indStop; ind < end; ind++) {
 			el.style.display = "block";
-			opacAnimate(el);
-			if (el.marker === el.length - 1) {
-				return;
-			}
+			that.opacAnimate(el);
 		}
 	};
 	/*************************************************************/
 	
-	
-	/*************************************************************
-	 * PAGE BUTTONS
-	 * 
-	 * ADD PAGINATION BUTTONS, ADD FUNCTIONALITY TO BUTTONS
-	 *************************************************************/
-	Paginator.prototype.buttons = function() {
-		var that = this;
+	return that;
+};
 
-		var paginationUL = that.pageButtonsConfig.container.makeIt();
-		that.el_eye[0].parentNode.parentNode.appendChild(paginationUL);
 
-		for (var li = 0, lj = that.tempArr.length / 10; li < lj; li++) {		
-			var paginationLI = that.pageButtonsConfig.items.makeIt();
-			var paaginationAnchor = that.pageButtonsConfig.links.makeIt();
-			paaginationAnchor.innerHTML = li + 1;
-			paginationLI.appendChild(paaginationAnchor);
-			paginationUL.appendChild(paginationLI);
+/***********************************************************
+ * SET UP PAGE
+ * 
+ * HIDE LIST ITEMS, ADD MARKER TO EACH LIST ITEM, SHOW FIRST TEN LIST ITEMS BY DEFAULT
+ ***********************************************************/
+Paginator.prototype.pages = function() {
+	var that = this;
+	var keyCounter = 0;
+	[].map.call(that.el_eye, function(key) {
+		keyCounter += 1;
+		key.style.display = "none";
+		key.marker = keyCounter;
+	});
+	that.tempArr.filter(function(key) {	
+		if (that.tempArr.indexOf(key) < 10) {
+			key.style.display = "block";
 		}
+	});
+};
 
-		var paginationLink = document.getElementsByClassName("paginationLink");
-		paginationLink[0].classList.toggle("active", true);
+
+/*************************************************************
+ * SEARCH
+ * 
+ * ADD SEARCH BAR AND BUTTON, ADD FUNCTIONALITY TO SEARCH BAR
+ *************************************************************/
+Paginator.prototype.cerch = function() {
+	var that = this;
+	/* ADD SEARCH BAR AND BUTTON *******************************/
+	var searchDiv = that.searchConfig.container.makeIt();
+	var searchInput = that.searchConfig.input.makeIt();
+	var searchButton = that.searchConfig.button.makeIt();
+	searchDiv.appendChild(searchInput);
+	searchDiv.appendChild(searchButton);
+	that.searchBox.appendChild(searchDiv);
+	
+	/* ADD FUNCTIONALITY TO SEARCH BAR *************************/
+	var cerchToggle = false;
+	searchButton.addEventListener("click", function() {
+		var cerchVal = document.getElementById("cerchInput").value.toLowerCase();
 		
-		var buttonCounter = 0;
-		[].map.call(paginationLink, function(key) {
-			buttonCounter += 1;
-			key.marker = buttonCounter;
+		if (!cerchVal) {
+			alert("Sorry, no results.  Please try again.");
+		} else {
+			[].map.call(that.tempArr, function(key) {
+				key.style.display = "none";
+			});
 			
-			key.addEventListener("click", function() {
-				var that2 = this;
-				[].map.call(paginationLink, function(key1) {
-					key1.classList.toggle("active", false);
-				});
-				
-				this.classList.toggle("active", true);
-				
-				that.tempArr.map(function(key2) {
-					key2.style.display = "none";
-				});
-				that.tempArr.filter(function(key3) {	
-					if (that.tempArr.indexOf(key3) >= (that2.marker * 10) - 10 && that.tempArr.indexOf(key3) < that2.marker * 10) {
-						key.style.display = "inline";
-						
-						showItems((that2.marker * 10) - 10, that2.marker * 10, key3);
-					}
-				});
+			var textArr = [].slice.call(that.searchItems);
+			textArr.filter(function(key) {
+				if (key.textContent.includes(cerchVal)) {
+					cerchToggle = true;
+					that.showItems(textArr.indexOf(key), textArr.indexOf(key) + 1, that.tempArr[textArr.indexOf(key)]);
+				}
+			});
+			
+			if (!cerchToggle) {
+				alert("Sorry, no results.  Please try again.");
+			}
+			
+			cerchToggle = false;
+		}
+	});
+};
+
+
+/*************************************************************
+ * PAGE BUTTONS
+ *************************************************************/
+Paginator.prototype.buttons = function() {
+	var that = this;
+	
+	/* ADD PAGINATION BUTTONS *******************************/
+	var paginationUL = that.pageButtonsConfig.container.makeIt();
+	that.el_eye[0].parentNode.parentNode.appendChild(paginationUL);
+
+	for (var li = 0, lj = that.tempArr.length / 10; li < lj; li++) {		
+		var paginationLI = that.pageButtonsConfig.items.makeIt();
+		var paaginationAnchor = that.pageButtonsConfig.links.makeIt();
+		paaginationAnchor.innerHTML = li + 1;
+		paginationLI.appendChild(paaginationAnchor);
+		paginationUL.appendChild(paginationLI);
+	}
+
+	var paginationLink = document.getElementsByClassName("paginationLink");
+	paginationLink[0].classList.toggle("active", true);
+	
+	/* ADD FUNCTIONALITY TO BUTTONS ***************************/
+	var buttonCounter = 0;
+	[].map.call(paginationLink, function(key) {
+		buttonCounter += 1;
+		key.marker = buttonCounter;
+		
+		key.addEventListener("click", function() {
+			var that2 = this;
+			[].map.call(paginationLink, function(key1) {
+				key1.classList.toggle("active", false);
+			});
+			
+			this.classList.toggle("active", true);
+			
+			that.tempArr.map(function(key2) {
+				key2.style.display = "none";
+			});
+			
+			that.tempArr.filter(function(key3) {	
+				if (that.tempArr.indexOf(key3) >= (that2.marker * 10) - 10 && that.tempArr.indexOf(key3) < that2.marker * 10) {
+					key.style.display = "inline";
+					
+					that.showItems((that2.marker * 10) - 10, that2.marker * 10, key3);
+				}
 			});
 		});
-	};
-	
-	
-	/*************************************************************
-	 * SEARCH
-	 * 
-	 * ADD SEARCH BAR AND BUTTON, ADD FUNCTIONALITY TO SEARCH BAR
-	 *************************************************************/
-	Paginator.prototype.cerch = function() {
-		/* ADD SEARCH BAR AND BUTTON *******************************/
-		
-		/* ADD FUNCTIONALITY TO SEARCH BAR *************************/
-	};
-
-	
-	/*************************************************************
-	 * RUN IT
-	 *************************************************************/
-	Paginator.prototype.run = function() {
-		this.pages();
-		this.buttons();
-	};
-	
-	var studentPaginator = new Paginator("student-item", "page-header");
-	studentPaginator.run();
-	
-})(window, document);
+	});
+};
 
 
-
+/*************************************************************
+ * RUN IT
+ *************************************************************/
+Paginator.prototype.run = function() {
+	var that = this;
+	that.pages();
+	that.buttons();
+	that.cerch();
+};	
