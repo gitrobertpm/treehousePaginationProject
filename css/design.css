@@ -4,6 +4,7 @@ body{
   background-color: #e1f1f6;
   font-family: Helvetica, sans-serif;
   color: #222;
+  -webkit-transition: 1s ease-out;transition: 1s ease-out;
 }
 
 .page{
@@ -12,6 +13,7 @@ body{
   background-color: #fff;
   border-radius: 5px;
   padding: 50px;
+  box-shadow: 10px 10px 10px rgba(50,50,50,0.5);
 }
 
 .page-header{
@@ -112,13 +114,13 @@ body{
       border-radius: 5px;
       padding: 3px 8px;
       text-decoration: none;
-      color: #4ba6c3;
+      color: rgb(50,50,50);
 	 cursor: pointer;
     }
 
     .pagination li a.active,
     .pagination li a:hover{
-      background-color: #4ba6c3;
+      background-color: rgb(75,75,75);
       color: #fff;
     }
     

@@ -1,110 +1,194 @@
 /*************************************************************
- * My Treehouse Projects #9,
+ * My Pagination Constructor
  *
- * FSJS #2, filter and pagination, 2.0
- *
- * Robert Manolis, Milwaukie OR, July 2016  :)
+ * Robert Manolis, Milwaukie OR, January - 2017  :)
  *************************************************************/
 
-"use strict";
-
-/********************************************************
+ 
+/*************************************************************
  * PAGINATOR CONSTRUCTOR OBJECT
  *
- * PARAMS: CLASS NAME OF LIST ITEMS YOU WANT PAGINATED
- * 		 CLASS NAME OF CONTAINER TO HOLD SEARCH
- * 		 TAG NAME OF ELEMENT THAT HOLDS TEXT TO BE SEARCHED
+ * PARAMS: CLASS NAME OF LIST ITEMS <li> YOU WANT PAGINATED
+ * 		 CLASS NAME OF CONTAINER TO HOLD SEARCH ELEMENTS
+ * 		 ARRAY CONTAINING ARRAYS OF ["reference to DOM element to be searched, i.e. 'tag', 'class', 'id'", 'tag/class/id name']
+ *              * So you need a nested array even if you only want to target one type of element
+ *              * [['tag', 'h3']]
+ *              * Here's what two looks like
+ *              * [['tag', 'h3'], ['class', 'email']]
  *
  * RETURNS: THIS
- *********************************************************/
-var Paginator = function(listItemKlassName, searchBox, searchItems) {
-	var that = this;
+ ************************************************************/
+ function Paginator(listItemKlassName, searchBox, searchedItems) {
+	"use strict";
 	
-	/* GET TAG NAME OF ITEMS TO SEARCH THROUGH **********/
-	that.searchItems = document.getElementsByTagName(searchItems);
+	const that = this;
 	
-	/* GET CLASS NAME OF SEARCH CONTAINER ***************/
+	/*******************************************************
+	* MAIN VARIABLES
+	********************************************************/
+	//Tag name of elements to be serached - returns an array of references to seasrch items
+	that.searchItems = () => {
+		let cearchArry = [];
+		searchedItems.forEach((vally, indy, arry) => {
+			if (vally[0] === "tag") {
+				cearchArry.push(document.getElementsByTagName(vally[1]));
+			} else if (vally[0] === "class") {
+				cearchArry.push(document.getElementsByClassName(vally[1]));
+			} else if (vally[0] === "id") {
+				cearchArry.push(document.getElementById(vally[1]));
+			}
+		});
+		
+		return cearchArry;
+	};
+	
+	// Class name of container to hold search elements
 	that.searchBox = document.getElementsByClassName(searchBox)[0];
 	
-	/* GET HTML COLLECTION OF LIST ITEM CLASS NAME ******/
+	// Class name of list items <li>
 	that.el_eye = document.getElementsByClassName(listItemKlassName);
 	
-	/* CONVERT LIST ITEM HTML COLLECTION INTO ARRAY *****/
-	that.tempArr = [].slice.call(that.el_eye);
+	// Generated pagination buttons
+	let paginationLink = document.getElementsByClassName("paginationLink");
 	
-	/* CONFIGURE PAGE BUTTONS ***************************/
+	// Convert list item HTML collection into array for easier lifting :)
+	that.tempArr = [].slice.call(that.el_eye);
+	/********************************************************/
+
+	
+	/********************************************************
+	* CONFIGURE GENERATED ELEMENTS
+	* 
+	* el = TAG NAME OF ELLEMENT TO BE CREATED
+	*
+	* attras = TWO DIMENSIONAL ARRAY HOLDING NEW ELEMENTS ATTRIBUTES
+	*          NESTED ARRAY[1] = ATTRIBUTE
+	*          NESTED ARRAY[2] = VALUE
+	*********************************************************/
+	// Configure page buttons
 	that.pageButtonsConfig = {
 		container: {
 			el: "ul",
-			klass: "pagination",
-			makeIt: function() {
-				var elem = document.createElement(this.el);
-				elem.setAttribute("class", this.klass);
-				return elem;
-			}
+			attras: [["class", "pagination"]]
 		},
 		items: {
 			el: "li",
-			makeIt: function() {
-				var elem = document.createElement(this.el);
-				return elem;
-			}
 		},
 		links: {
 			el: "a",
-			klass: "paginationLink",
-			makeIt: function() {
-				var elem = document.createElement(this.el);
-				elem.setAttribute("class", this.klass);
-				return elem;
-			}
+			attras: [["class", "paginationLink"]]
 		}
 	};
 	
-	/* CONFIGURE SEARCH ***************************/
+	// Configure search markup
 	that.searchConfig = {
 		container: {
 			el: "div",
-			klass: "student-search",
-			makeIt: function() {
-				var elem = document.createElement(this.el);
-				elem.setAttribute("class", this.klass);
-				return elem;
-			}
+			attras: [["class", "student-search"]]
 		},
 		input: {
 			el: "input",
-			name: "Search",
-			id: "cerchInput",
-			val: "",
-			placeholder: "Search for students...",
-			makeIt: function() {
-				var elem = document.createElement(this.el);
-				elem.setAttribute("name", this.name);
-				elem.setAttribute("id", this.id);
-				elem.setAttribute("value", this.val);
-				elem.setAttribute("placeholder", this.placeholder);
-				return elem;
-			}
+			attras: [["name", "Search"], ["id", "cerchInput"], ["value", ""], ["placeholder", "Search for students..."]]
 		},
 		button: {
 			el: "button",
-			teckts: "Search",
-			id: "searchButton",
-			makeIt: function() {
-				var elem = document.createElement(this.el);
-				elem.innerHTML = "Search";
-				return elem;
-			}
+			attras: [["id", "searchButton"]],
+			teckts: "Search"
 		}
-	};	
+	};
+	/*********************************************************/
 	
-	/* HELPER FUNCTION FOR ANIMATING OPACITY OF SELECTED ITEMS */
-	that.opacAnimate = function(el) {
-		var animateItems = setInterval(revealItems, 10);
-		var opac = 0;
+	
+	/*********************************************************
+	* SET UP PAGE
+	***********************************************************/
+	that.initiatePage = (elly) => {
+		
+		// Hide all list items and show first ten
+		elly.filter((vally, indy, arry) => {
+			vally.style.display = "none";			
+			if (elly.indexOf(vally) < 10) {
+				vally.style.display = "block";
+			}
+		});
+	};
+	/************************************************************/
+	
+	
+	/************************************************************ 
+	* CREATE ELEMENT
+	* 
+	* PARAMS: ELEMENT TO CREATE
+	*         ARRAY OF ARRAYS CONTAINING ATTRIBUTES AND THEIR VALUES TO BE ADDED TO ELEMENT
+	*         TEXT TO AD TO ELEMENT
+	* 
+	* RETURN: ELEMENT
+	*************************************************************/
+	that.makeIt = (el, attras, text) => {
+		let elem = document.createElement(el);
+		
+		// Assign attributes if present
+		if (attras) {
+			attras.map((vally, indy, arry) => {
+				elem.setAttribute(vally[0],vally[1]);
+			});
+		}
+		
+		// Add text if present
+		if (text) {
+			elem.innerHTML = text;
+		}
+		
+		return elem;
+	};
+	/************************************************************/
+	
+	
+	/************************************************************
+	* PAGE BUTTONS
+	* 
+	* PARAMS: ARRAY OF OTEMS TO PAGINATE
+	*************************************************************/
+	that.buttons = (arry) => {
+		
+		// Remove pagination previously generated pagination buttons
+		let listContainer = document.getElementsByClassName("pagination")[0];
+		if (listContainer) {
+			listContainer.parentNode.removeChild(listContainer);
+		}
+		
+		// If more than one page worth of items to paginate
+		if (arry.length > 10) {
+			
+			// Create and attach container to hold pagianation buttons
+			let paginationUL = that.makeIt(that.pageButtonsConfig.container.el, that.pageButtonsConfig.container.attras);
+			that.el_eye[0].parentNode.parentNode.appendChild(paginationUL);
+			
+			// Create correct number of pagination buttons
+			for (let li = 0, lj = arry.length / 10; li < lj; li++) {		
+				let paginationLI = that.makeIt(that.pageButtonsConfig.items.el);
+				let paaginationAnchor = that.makeIt(that.pageButtonsConfig.links.el, that.pageButtonsConfig.links.attras, li + 1);
+				paginationLI.appendChild(paaginationAnchor);
+				paginationUL.appendChild(paginationLI);
+			}
+			
+			// Set first button to active class
+			paginationLink[0].classList.toggle("active", true);
+		}
+	};
+	/************************************************************/
+	
+	
+	/************************************************************
+	* ANIMATING OPACITY OF NEWLY SELECTED ITEMS 
+	*
+	* PARAMS: ELEMENT TO BE ADJUSTED
+	*************************************************************/
+	that.opacAnimate = (el) => {
+		let animateItems = setInterval(revealItems, 50);
+		let opac = 0;
 		function revealItems() {
-			opac += 0.01;
+			opac += 0.05;
 			if (opac < 1) {
 				el.style.opacity = opac;
 			} else {
@@ -115,142 +199,215 @@ var Paginator = function(listItemKlassName, searchBox, searchItems) {
 	/************************************************************/
 
 
-	/* HELPER FUNCTION FOR DISPLAYING SELECTED NUMBER OF STUDENTS */
-	that.showItems = function(indStart, indStop, el) {
-		for (var ind = indStart, end = indStop; ind < end; ind++) {
+	/************************************************************
+	* SELECT ELEMENTS THAT GET OPACITY ANIMATION
+	*
+	* PARAMS: WHERE TO START
+	*         WHERE TO STOP
+	*         WHICH ELEMENTS
+	*************************************************************/
+	that.showItems = (indStart, indStop, el) => {
+		for (let ind = indStart, end = indStop; ind < end; ind++) {
 			el.style.display = "block";
 			that.opacAnimate(el);
 		}
 	};
 	/*************************************************************/
 	
-	return that;
-};
-
-
-/***********************************************************
- * SET UP PAGE
- * 
- * HIDE LIST ITEMS, ADD MARKER TO EACH LIST ITEM, SHOW FIRST TEN LIST ITEMS BY DEFAULT
- ***********************************************************/
-Paginator.prototype.pages = function() {
-	var that = this;
-	var keyCounter = 0;
-	[].map.call(that.el_eye, function(key) {
-		keyCounter += 1;
-		key.style.display = "none";
-		key.marker = keyCounter;
-	});
-	that.tempArr.filter(function(key) {	
-		if (that.tempArr.indexOf(key) < 10) {
-			key.style.display = "block";
-		}
-	});
-};
-
-
-/*************************************************************
- * SEARCH
- * 
- * ADD SEARCH BAR AND BUTTON, ADD FUNCTIONALITY TO SEARCH BAR
- *************************************************************/
-Paginator.prototype.cerch = function() {
-	var that = this;
-	/* ADD SEARCH BAR AND BUTTON *******************************/
-	var searchDiv = that.searchConfig.container.makeIt();
-	var searchInput = that.searchConfig.input.makeIt();
-	var searchButton = that.searchConfig.button.makeIt();
-	searchDiv.appendChild(searchInput);
-	searchDiv.appendChild(searchButton);
-	that.searchBox.appendChild(searchDiv);
 	
-	/* ADD FUNCTIONALITY TO SEARCH BAR *************************/
-	var cerchToggle = false;
-	searchButton.addEventListener("click", function() {
-		var cerchVal = document.getElementById("cerchInput").value.toLowerCase();
+	/************************************************************* 
+	* SELECT LIST ITEMS TO DISPLAY
+	* 
+	* PARAMS: PAGINATION BUTTON THAT WAS CLICKED
+	*         ARRAY OF ELEMENTS TO SHOW
+	*************************************************************/
+	that.hideAndShowTen = (keyo, arry) => {
+		
+		// Get inner HTML of argument
+		let numo = Number(keyo.innerHTML);
+		
+		arry.filter((vally, indy, arry) => {
+			
+			// Hide all list items
+			vally.style.display = "none";
+			
+			// Show ten list items according to which pagination button was clicked
+			if (arry.indexOf(vally) >= (numo * 10) - 10 && arry.indexOf(vally) < numo * 10) {
+				that.showItems((numo * 10) - 10, numo * 10, vally);
+			}
+		});
+	};
+	/************************************************************/
+	
+	
+	/************************************************************ 
+	* CREATE EVENT LISTENERS FOR PAGINATION BUTTONS
+	*
+	* PARAMS: ELEMENT TO WHICH LISTENER GETS ATTACHED
+	*         ARRAY OF ELEMENTS TO WORK WITH
+	*************************************************************/
+	that.butClick = (elly, arry) => {
+		// Can't use arrow function here because value of "this" keyword is different with arrow functions
+		elly.addEventListener("click", function() {		
+			
+			// Remove active class from all pagination buttons
+			[].map.call(paginationLink, (vally, indy, arry) => {
+				vally.classList.toggle("active", false);
+			});
+			
+			// Add active class to clicked pagination button
+			this.classList.toggle("active", true);
+			
+			that.hideAndShowTen(this, arry);
+		});
+	};
+	/************************************************************/
+	
+	
+	/************************************************************* 
+	* INTIATE BUTTONS
+	*
+	* PARAMS: ARRAY OF ELEMENTS TO WORK WITH
+	*************************************************************/
+	that.initiateButtons = (arry) => {
+		that.buttons(arry);
+		[].map.call(paginationLink, (vally, indy, arr) => {
+			that.butClick(vally, arry);
+		});
+	};
+	/************************************************************/
+	
+	
+	/*************************************************************
+	* ADD SEARCH BAR AND BUTTON
+	*************************************************************/
+	that.cerchSetup = () => {
+		let searchDiv = that.makeIt(that.searchConfig.container.el, that.searchConfig.container.attras);
+		let searchInput = that.makeIt(that.searchConfig.input.el, that.searchConfig.input.attras);
+		let searchButton = that.makeIt(that.searchConfig.button.el, that.searchConfig.button.attras, that.searchConfig.button.teckts);
+		searchDiv.appendChild(searchInput);
+		searchDiv.appendChild(searchButton);
+		that.searchBox.appendChild(searchDiv);
+	};
+	/************************************************************/
+	
+	
+	/*************************************************************
+	* COMPARE SEARCH VALUE WITH LIST ITEMS
+	*
+	* PARAMS: VALUE OF SEASRCH INPUT
+	*
+	* RETURN: ARRAY OF SEARCH RESULTS
+	*************************************************************/
+	that.comnpare = (searchVal) => {
+		let searchArry = that.searchItems();	
+		let results = [];
+		
+		// Loop through serach elements
+		searchArry.forEach((vally, indy, arry) => {
+			[].forEach.call(vally, (vally2, indy2, arry2) => {
+				
+				// If there's a match, push list item to results array
+				if (vally2.innerHTML.includes(searchVal)) {
+					results.push(that.tempArr[indy2]);
+				}
+			});	
+		});
+		
+		console.log(results.length + " total results");
+		console.log(results);
+		return results;		
+	};
+	/************************************************************/
+	
+	
+	/*************************************************************
+	* CREATE FUNCTIONALAITY FOR SEARCH BUTTON
+	*************************************************************/
+	that.cearchClockworks = () => {
+		let cerchVal = document.getElementById("cerchInput").value.toLowerCase();	
 		
 		if (!cerchVal) {
-			alert("Sorry, no results.  Please try again.");
+			alert("Please enter something first");
 		} else {
-			[].map.call(that.tempArr, function(key) {
+			
+			// Hide list items
+			[].map.call(that.tempArr, (key) => {
 				key.style.display = "none";
 			});
 			
-			var textArr = [].slice.call(that.searchItems);
-			textArr.filter(function(key) {
-				if (key.textContent.includes(cerchVal)) {
-					cerchToggle = true;
-					that.showItems(textArr.indexOf(key), textArr.indexOf(key) + 1, that.tempArr[textArr.indexOf(key)]);
-				}
-			});
+			let results = that.comnpare(cerchVal);
 			
-			if (!cerchToggle) {
+			if (results.length < 1) {
+				
+				// Alert if no results
 				alert("Sorry, no results.  Please try again.");
+			} else {
+				
+				// Show new list items and pagination buttons
+				that.initiatePage(results);
+				that.initiateButtons(results);
 			}
-			
-			cerchToggle = false;
 		}
-	});
-};
-
-
-/*************************************************************
- * PAGE BUTTONS
- *************************************************************/
-Paginator.prototype.buttons = function() {
-	var that = this;
+	};
+	/************************************************************/
 	
-	/* ADD PAGINATION BUTTONS *******************************/
-	var paginationUL = that.pageButtonsConfig.container.makeIt();
-	that.el_eye[0].parentNode.parentNode.appendChild(paginationUL);
-
-	for (var li = 0, lj = that.tempArr.length / 10; li < lj; li++) {		
-		var paginationLI = that.pageButtonsConfig.items.makeIt();
-		var paaginationAnchor = that.pageButtonsConfig.links.makeIt();
-		paaginationAnchor.innerHTML = li + 1;
-		paginationLI.appendChild(paaginationAnchor);
-		paginationUL.appendChild(paginationLI);
-	}
-
-	var paginationLink = document.getElementsByClassName("paginationLink");
-	paginationLink[0].classList.toggle("active", true);
 	
-	/* ADD FUNCTIONALITY TO BUTTONS ***************************/
-	var buttonCounter = 0;
-	[].map.call(paginationLink, function(key) {
-		buttonCounter += 1;
-		key.marker = buttonCounter;
+	/*************************************************************
+	* ADD EVENT LISTENERS TO SEARCH BUTTON
+	*************************************************************/
+	that.investigate = () => {
 		
-		key.addEventListener("click", function() {
-			var that2 = this;
-			[].map.call(paginationLink, function(key1) {
-				key1.classList.toggle("active", false);
-			});
-			
-			this.classList.toggle("active", true);
-			
-			that.tempArr.map(function(key2) {
-				key2.style.display = "none";
-			});
-			
-			that.tempArr.filter(function(key3) {	
-				if (that.tempArr.indexOf(key3) >= (that2.marker * 10) - 10 && that.tempArr.indexOf(key3) < that2.marker * 10) {
-					key.style.display = "inline";
-					
-					that.showItems((that2.marker * 10) - 10, that2.marker * 10, key3);
-				}
-			});
+		// Submit
+		searchButton.addEventListener("click", () => {
+			that.cearchClockworks();
 		});
-	});
-};
-
-
-/*************************************************************
- * RUN IT
- *************************************************************/
-Paginator.prototype.run = function() {
-	var that = this;
-	that.pages();
-	that.buttons();
-	that.cerch();
-};	
+		
+		// Enter button
+		document.getElementById(that.searchConfig.input.attras[1][1]).addEventListener("keydown", (e) => {
+			if (e.keyCode === 13) {
+				that.cearchClockworks();
+			}
+		});
+	};
+	/************************************************************/
+	
+	
+	/************************************************************* 
+	* RESET LIST AND PAGINATION WHEN SEARCH FIELD IS EMPTY
+	*************************************************************/
+	that.reset = () => {
+		let cerchInput = document.getElementById("cerchInput");
+		cerchInput.addEventListener("input", () => {
+			if (cerchInput.value === "") {
+				that.initiatePage(that.tempArr);
+				that.initiateButtons(that.tempArr);
+			}
+		});
+	};
+	/************************************************************/
+	
+	
+	/************************************************************* 
+	* INITIATE SEARCH
+	*************************************************************/
+	that.initiateCerch = () => {
+		that.cerchSetup();
+		that.investigate();
+		that.reset();
+	};
+	/************************************************************/
+	
+	
+	/************************************************************* 
+	* RUN IT
+	*************************************************************/
+	that.run = () => {
+		that.initiatePage(that.tempArr);
+		that.initiateButtons(that.tempArr);
+		that.initiateCerch();
+	};
+	/************************************************************/
+	
+	return that;
+ }
